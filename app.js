@@ -19,6 +19,7 @@ app.post('/register', async (req, res) => {
         await db.execute('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash]);
         res.status(201).send('User created');
     } catch (e) {
+        console.warn(e);
         res.status(400).send('Username taken');
     }
 });
@@ -36,13 +37,23 @@ app.post('/login', async (req, res) => {
 });
 
 // Upload photo (raw body, ?userId=)
-app.post('/upload', express.raw({type: '*/*', limit: '10mb'}), async (req, res) => {
+app.post('/upload', express.raw({type: 'application/octet-stream', limit: '10mb'}), async (req, res) => {
     const userId = req.query.userId;
+    if (!req.body || !userId) return res.status(400).send('Missing data or userId');
+
     const filename = `photo_${Date.now()}.jpg`;
     const filepath = path.join(UPLOAD_DIR, filename);
     fs.writeFileSync(filepath, req.body);
     await db.execute('INSERT INTO photos (user_id, filename) VALUES (?, ?)', [userId, filename]);
     res.send('Photo uploaded');
+});
+
+// Get all photos for a user
+app.get('/photos', async (req, res) => {
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).send('Missing userId');
+    const [rows] = await db.execute('SELECT id, filename FROM photos WHERE user_id = ?', [userId]);
+    res.json(rows);
 });
 
 // Download photo

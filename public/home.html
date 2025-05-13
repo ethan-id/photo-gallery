@@ -3,8 +3,13 @@
     <head>
         <title>Home</title>
     </head>
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    />
     <body>
         <h2>Photo Gallery</h2>
+
         <form id="uploadForm">
             <input
                 type="file"
@@ -13,16 +18,54 @@
             />
             <button type="submit">Upload</button>
         </form>
-        <input
-            id="photoId"
-            placeholder="Photo ID to download"
-        />
-        <button onclick="download()">Download</button>
-        <br /><br />
+
+        <h3>Your Uploaded Photos</h3>
+        <div
+            id="photoList"
+            style="display: flex; flex-wrap: wrap"
+        ></div>
+
+        <br />
         <button onclick="logout()">Logout</button>
 
         <script>
             if (!localStorage.userId) location.href = 'login.html';
+
+            async function fetchPhotos() {
+                const res = await fetch(`/photos?userId=${localStorage.userId}`);
+                const photos = await res.json();
+                const list = document.getElementById('photoList');
+                list.innerHTML = '';
+
+                for (const photo of photos) {
+                    const container = document.createElement('div');
+                    container.style.margin = '10px';
+                    container.style.textAlign = 'center';
+
+                    const img = document.createElement('img');
+                    img.src = `/download/${photo.id}`;
+                    img.alt = photo.filename;
+                    img.style.width = '200px';
+                    img.style.border = '1px solid #ccc';
+                    img.style.display = 'block';
+                    img.style.marginBottom = '5px';
+
+                    const btn = document.createElement('button');
+                    btn.textContent = 'Download';
+                    btn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = `/download/${photo.id}`;
+                        link.download = photo.filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
+
+                    container.appendChild(img);
+                    container.appendChild(btn);
+                    list.appendChild(container);
+                }
+            }
 
             document.getElementById('uploadForm').onsubmit = async (e) => {
                 e.preventDefault();
@@ -31,20 +74,24 @@
                 const buf = await file.arrayBuffer();
                 const res = await fetch(`/upload?userId=${localStorage.userId}`, {
                     method: 'POST',
+                    headers: {'Content-Type': 'application/octet-stream'},
                     body: buf
                 });
                 alert(await res.text());
+                await fetchPhotos();
             };
 
             function download() {
                 const id = document.getElementById('photoId').value;
-                window.open(`/download/${id}`);
+                if (id) window.open(`/download/${id}`);
             }
 
             function logout() {
                 localStorage.removeItem('userId');
                 location.href = 'login.html';
             }
+
+            fetchPhotos();
         </script>
     </body>
 </html>
