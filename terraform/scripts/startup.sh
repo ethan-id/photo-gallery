@@ -6,7 +6,7 @@ apt install -y curl git nodejs npm
 
 # Clone your app (or replace with `gsutil cp` if using GCS upload)
 cd /opt
-git clone https://github.com/your-username/photo-gallery.git
+git clone https://github.com/ethan-id/photo-gallery.git
 cd photo-gallery
 
 # Install dependencies

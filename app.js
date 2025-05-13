@@ -64,4 +64,7 @@ app.get('/download/:id', async (req, res) => {
     res.sendFile(path.join(UPLOAD_DIR, photo.filename));
 });
 
-app.listen(3000, () => console.log('Listening on http://localhost:3000'));
+const PORT = process.env.PORT || 80;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Listening on port ${PORT}`);
+});

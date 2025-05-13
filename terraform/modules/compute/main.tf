@@ -11,6 +11,7 @@ resource "google_compute_instance" "vm" {
 
   network_interface {
     network       = var.network_self_link
+    subnetwork    = var.subnetwork_self_link
     access_config {}  # Enables external IP
   }
 
