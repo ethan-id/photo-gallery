@@ -63,3 +63,12 @@ terraform apply -var="project_id=final-459700" -var="db_password=ethanpassword"
 ```
 
 Visit the public IP of your VM in the browser to use the application.
+
+## Deployment Summary
+
+- **Deployment Time**: ~2–3 minutes after `terraform apply`
+- **Estimated Monthly Cost**:
+  - VM (e2-standard-2): ~$25/month
+  - Cloud SQL (db-n1-standard-1): ~$30/month
+  - Storage + bandwidth: ~$5/month
+  - **Total**: ~$60/month

@@ -29,9 +29,6 @@ DB_PW=ethanpassword
 DB_NAME=photo_gallery
 EOF
 
-# Add keep-alive line to prevent Express from exiting
-sed -i '1i\setInterval(() => {}, 1000);' app.js
-
 # Initialize DB schema
 cat > init.sql <<EOF
 CREATE TABLE IF NOT EXISTS users (
