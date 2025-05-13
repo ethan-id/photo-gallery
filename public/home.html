@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Home</title>
+    </head>
+    <body>
+        <h2>Photo Gallery</h2>
+        <form id="uploadForm">
+            <input
+                type="file"
+                id="photo"
+                required
+            />
+            <button type="submit">Upload</button>
+        </form>
+        <input
+            id="photoId"
+            placeholder="Photo ID to download"
+        />
+        <button onclick="download()">Download</button>
+        <br /><br />
+        <button onclick="logout()">Logout</button>
+
+        <script>
+            if (!localStorage.userId) location.href = 'login.html';
+
+            document.getElementById('uploadForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const file = document.getElementById('photo').files[0];
+                if (!file) return alert('Choose a file');
+                const buf = await file.arrayBuffer();
+                const res = await fetch(`/upload?userId=${localStorage.userId}`, {
+                    method: 'POST',
+                    body: buf
+                });
+                alert(await res.text());
+            };
+
+            function download() {
+                const id = document.getElementById('photoId').value;
+                window.open(`/download/${id}`);
+            }
+
+            function logout() {
+                localStorage.removeItem('userId');
+                location.href = 'login.html';
+            }
+        </script>
+    </body>
+</html>

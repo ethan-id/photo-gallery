@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input
+                name="username"
+                placeholder="Username"
+                required
+            />
+            <input
+                name="password"
+                placeholder="Password"
+                type="password"
+                required
+            />
+            <button type="submit">Login</button>
+        </form>
+        <p><a href="register.html">Create an account</a></p>
+        <script>
+            document.getElementById('loginForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const form = new FormData(e.target);
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: form.get('username'),
+                        password: form.get('password')
+                    })
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('userId', result.userId);
+                    location.href = 'home.html';
+                } else {
+                    alert('Login failed');
+                }
+            };
+        </script>
+    </body>
+</html>

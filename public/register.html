@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Register</title>
+    </head>
+    <body>
+        <h2>Register</h2>
+        <form id="registerForm">
+            <input
+                name="username"
+                placeholder="Username"
+                required
+            />
+            <input
+                name="password"
+                placeholder="Password"
+                type="password"
+                required
+            />
+            <button type="submit">Register</button>
+        </form>
+        <p><a href="login.html">Already have an account?</a></p>
+        <script>
+            document.getElementById('registerForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const form = new FormData(e.target);
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: form.get('username'),
+                        password: form.get('password')
+                    })
+                });
+                alert(await res.text());
+                if (res.ok) location.href = 'login.html';
+            };
+        </script>
+    </body>
+</html>
