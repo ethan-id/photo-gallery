@@ -71,6 +71,10 @@ app.get('/download/:filename', (req, res) => {
     res.sendFile(filepath);
 });
 
+app.get('/health', (_req, res) => {
+  res.status(200).send('OK');
+});
+
 const PORT = process.env.PORT || 80;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Listening on port ${PORT}`);
