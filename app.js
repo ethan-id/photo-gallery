@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 
 const app = express();
-setInterval(() => {}, 1000); // Keeps Node process alive
+setInterval(() => {}, 1000);
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -25,7 +25,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// Login (returns user ID)
+// Login
 app.post('/login', async (req, res) => {
     const {username, password} = req.body;
     const [rows] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
@@ -37,37 +37,38 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Upload photo (raw body, ?userId=)
+// Upload photo
 app.post('/upload', express.raw({type: 'application/octet-stream', limit: '10mb'}), async (req, res) => {
     const userId = req.query.userId;
-    const filename = req.query.filename; // passed from client
+    const filename = req.query.filename;
     if (!req.body || !userId || !filename) return res.status(400).send('Missing data');
 
     const storedName = `photo_${Date.now()}.jpg`;
     const filepath = path.join(UPLOAD_DIR, storedName);
     fs.writeFileSync(filepath, req.body);
 
-    await db.execute(
-        'INSERT INTO photos (user_id, filename, stored_name) VALUES (?, ?, ?)',
-        [userId, filename, storedName]
-    );
+    await db.execute('INSERT INTO photos (user_id, filename, stored_name) VALUES (?, ?, ?)', [
+        userId,
+        filename,
+        storedName
+    ]);
     res.send('Photo uploaded');
 });
 
-// Get all photos for a user
+// Return all photos for a user
 app.get('/photos', async (req, res) => {
     const userId = req.query.userId;
     if (!userId) return res.status(400).send('Missing userId');
-    const [rows] = await db.execute('SELECT id, filename FROM photos WHERE user_id = ?', [userId]);
+    const [rows] = await db.execute('SELECT id, filename, stored_name FROM photos WHERE user_id = ?', [userId]);
     res.json(rows);
 });
 
-// Download photo
-app.get('/download/:id', async (req, res) => {
-    const [rows] = await db.execute('SELECT * FROM photos WHERE id = ?', [req.params.id]);
-    const photo = rows[0];
-    if (!photo) return res.sendStatus(404);
-    res.sendFile(path.join(UPLOAD_DIR, photo.filename));
+// Serve photo file
+app.get('/download/:filename', (req, res) => {
+    const safeName = path.basename(req.params.filename);
+    const filepath = path.join(UPLOAD_DIR, safeName);
+    if (!fs.existsSync(filepath)) return res.status(404).send('File not found');
+    res.sendFile(filepath);
 });
 
 const PORT = process.env.PORT || 80;

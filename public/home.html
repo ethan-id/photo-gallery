@@ -58,7 +58,7 @@
                     container.style.textAlign = 'center';
 
                     const img = document.createElement('img');
-                    img.src = `/download/${photo.id}`;
+                    img.src = `/download/${photo.stored_name}`;
                     img.alt = photo.filename;
                     img.style.width = '200px';
                     img.style.border = '1px solid #ccc';
@@ -69,7 +69,7 @@
                     btn.textContent = 'Download';
                     btn.onclick = () => {
                         const link = document.createElement('a');
-                        link.href = `/download/${photo.id}`;
+                        link.href = `/download/${photo.stored_name}`;
                         link.download = photo.filename;
                         document.body.appendChild(link);
                         link.click();
