@@ -40,12 +40,17 @@ app.post('/login', async (req, res) => {
 // Upload photo (raw body, ?userId=)
 app.post('/upload', express.raw({type: 'application/octet-stream', limit: '10mb'}), async (req, res) => {
     const userId = req.query.userId;
-    if (!req.body || !userId) return res.status(400).send('Missing data or userId');
+    const filename = req.query.filename; // passed from client
+    if (!req.body || !userId || !filename) return res.status(400).send('Missing data');
 
-    const filename = `photo_${Date.now()}.jpg`;
-    const filepath = path.join(UPLOAD_DIR, filename);
+    const storedName = `photo_${Date.now()}.jpg`;
+    const filepath = path.join(UPLOAD_DIR, storedName);
     fs.writeFileSync(filepath, req.body);
-    await db.execute('INSERT INTO photos (user_id, filename) VALUES (?, ?)', [userId, filename]);
+
+    await db.execute(
+        'INSERT INTO photos (user_id, filename, stored_name) VALUES (?, ?, ?)',
+        [userId, filename, storedName]
+    );
     res.send('Photo uploaded');
 });
 

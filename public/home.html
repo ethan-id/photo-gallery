@@ -93,7 +93,8 @@
                 const file = document.getElementById('photo').files[0];
                 if (!file) return alert('Choose a file');
                 const buf = await file.arrayBuffer();
-                const res = await fetch(`/upload?userId=${localStorage.userId}`, {
+                const encodedFilename = encodeURIComponent(file.name);
+                const res = await fetch(`/upload?userId=${localStorage.userId}&filename=${encodedFilename}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/octet-stream'},
                     body: buf
