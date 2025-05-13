@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 
 const app = express();
+setInterval(() => {}, 1000); // Keeps Node process alive
 app.use(express.json());
 app.use(express.static('public'));
 

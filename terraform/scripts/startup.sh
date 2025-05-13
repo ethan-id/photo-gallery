@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Install system dependencies
+# Install Node.js 18 from NodeSource
 apt update
-apt install -y curl git nodejs npm
+apt install -y curl git
 
-# Clone your app (or replace with `gsutil cp` if using GCS upload)
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+apt install -y nodejs npm
+
+# Clone your app
 cd /opt
 git clone https://github.com/ethan-id/photo-gallery.git
 cd photo-gallery
@@ -12,7 +15,7 @@ cd photo-gallery
 # Install dependencies
 npm install
 
-# Write DB config (injected by Terraform later)
+# Write fake env vars if needed
 cat > .env <<EOF
 DB_HOST=127.0.0.1
 DB_USER=root
@@ -20,5 +23,7 @@ DB_PW=REPLACE_ME
 DB_NAME=photo_gallery
 EOF
 
-# Start the app in the background
-nohup node app.js > /var/log/app.log 2>&1 &
+# Start app on port 80 and keep it alive
+export PORT=80
+nohup node app.js > /home/app.log 2>&1 &
+
