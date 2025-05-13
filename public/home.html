@@ -20,6 +20,15 @@
         </form>
 
         <h3>Your Uploaded Photos</h3>
+
+        <!-- Search input -->
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by filename"
+            style="margin-bottom: 10px; padding: 5px; width: 250px"
+        />
+
         <div
             id="photoList"
             style="display: flex; flex-wrap: wrap"
@@ -31,9 +40,15 @@
         <script>
             if (!localStorage.userId) location.href = 'login.html';
 
+            let allPhotos = [];
+
             async function fetchPhotos() {
                 const res = await fetch(`/photos?userId=${localStorage.userId}`);
-                const photos = await res.json();
+                allPhotos = await res.json();
+                renderPhotos(allPhotos);
+            }
+
+            function renderPhotos(photos) {
                 const list = document.getElementById('photoList');
                 list.innerHTML = '';
 
@@ -67,6 +82,12 @@
                 }
             }
 
+            document.getElementById('searchInput').oninput = (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = allPhotos.filter((p) => p.filename.toLowerCase().includes(query));
+                renderPhotos(filtered);
+            };
+
             document.getElementById('uploadForm').onsubmit = async (e) => {
                 e.preventDefault();
                 const file = document.getElementById('photo').files[0];
@@ -80,11 +101,6 @@
                 alert(await res.text());
                 await fetchPhotos();
             };
-
-            function download() {
-                const id = document.getElementById('photoId').value;
-                if (id) window.open(`/download/${id}`);
-            }
 
             function logout() {
                 localStorage.removeItem('userId');
